@@ -1,0 +1,96 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: 'Inter', system-ui, sans-serif;
+    --font-display: 'Alfa Slab One', serif;
+    --font-handwritten: 'Kalam', cursive;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-cork-light text-text-primary;
+  }
+}
+
+@layer components {
+  /* Custom utility classes for nostalgic effects */
+  .bg-cork-texture {
+    @apply relative;
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(139, 69, 19, 0.15) 1px, transparent 0),
+      linear-gradient(45deg, transparent 40%, rgba(160, 82, 45, 0.1) 50%, transparent 60%);
+    background-size: 20px 20px, 40px 40px;
+  }
+
+  .shadow-polaroid {
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.15), 
+      0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  .shadow-polaroid-hover {
+    box-shadow: 
+      0 8px 16px rgba(0, 0, 0, 0.15), 
+      0 16px 32px rgba(0, 0, 0, 0.15);
+  }
+
+  .shadow-pin {
+    box-shadow: 
+      0 2px 4px rgba(0, 0, 0, 0.2), 
+      inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  }
+
+  /* Handwritten text effects */
+  .text-handwritten {
+    @apply font-handwritten;
+    letter-spacing: 0.02em;
+  }
+
+  /* Vintage photo effects */
+  .filter-vintage {
+    filter: sepia(20%) hue-rotate(10deg) contrast(1.1) brightness(0.95);
+  }
+
+  /* Cork board pattern */
+  .pattern-cork {
+    background-color: #D2B48C;
+    background-image: 
+      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(139, 69, 19, .1) 35px, rgba(139, 69, 19, .1) 70px),
+      repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(160, 82, 45, .05) 35px, rgba(160, 82, 45, .05) 70px);
+  }
+}
+
+@layer utilities {
+  /* Smooth scrolling */
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  /* Preserve 3D for card effects */
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  /* Backface visibility for flip effects */
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  /* Transform GPU acceleration */
+  .transform-gpu {
+    transform: translateZ(0);
+  }
+
+  /* Text rendering optimization */
+  .text-render-optimize {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
