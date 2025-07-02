@@ -1,0 +1,734 @@
+=# Digital Polaroid Pinboard - Cursor Rules
+
+## Project Overview
+You are building the Digital Polaroid Pinboard, a nostalgic member directory that combines authentic vintage aesthetics with modern web technologies. This project transforms traditional member directories into an immersive nostalgic experience using polaroid-style member cards pinned to a virtual cork board.
+
+## Core Technologies
+- **Frontend**: Next.js 14 with App Router, TypeScript, Tailwind CSS
+- **Animation**: Framer Motion for smooth nostalgic interactions
+- **Backend**: Supabase (PostgreSQL, Auth, Real-time, Storage)
+- **Styling**: Tailwind CSS with custom nostalgic design system
+- **Testing**: Jest, React Testing Library, Playwright
+- **Deployment**: Vercel for frontend, Supabase for backend services
+
+## Design Philosophy
+The project emphasizes authentic nostalgic aesthetics that evoke physical photo collections and yearbook layouts. Every design decision should enhance the emotional connection while maintaining modern usability and accessibility standards.
+
+## Code Style and Standards
+
+### TypeScript Configuration
+- Use strict TypeScript with comprehensive type safety
+- Prefer interfaces over types for object definitions
+- Use proper generic constraints and utility types
+- Implement comprehensive error handling with typed errors
+
+```typescript
+// Preferred interface pattern
+interface Member {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+  company?: string;
+  bio?: string;
+  photo_url?: string;
+  pin_color: 'cherry' | 'mustard' | 'teal' | 'lavender';
+  public_visibility: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+// Preferred error handling pattern
+type Result<T, E = Error> = 
+  | { success: true; data: T }
+  | { success: false; error: E };
+```
+
+### React Component Patterns
+- Use functional components with hooks exclusively
+- Implement proper component composition and reusability
+- Use forwardRef for components that need ref forwarding
+- Implement proper error boundaries for robust error handling
+
+```typescript
+// Preferred component pattern
+interface PolaroidCardProps {
+  member: Member;
+  size?: 'sm' | 'md' | 'lg';
+  rotation?: number;
+  interactive?: boolean;
+  onClick?: () => void;
+  className?: string;
+}
+
+const PolaroidCard = forwardRef<HTMLDivElement, PolaroidCardProps>(
+  ({ member, size = 'md', rotation, interactive = true, onClick, className }, ref) => {
+    // Component implementation
+  }
+);
+
+PolaroidCard.displayName = 'PolaroidCard';
+```
+
+### Next.js App Router Patterns
+- Use proper file-based routing with App Router conventions
+- Implement Server Components where appropriate for performance
+- Use Client Components only when interactivity is required
+- Implement proper loading and error states
+
+```typescript
+// app/directory/page.tsx - Server Component
+export default async function DirectoryPage() {
+  const members = await getMembers();
+  
+  return (
+    <div className="min-h-screen bg-cork-board">
+      <DirectoryClient initialMembers={members} />
+    </div>
+  );
+}
+
+// components/DirectoryClient.tsx - Client Component
+'use client';
+export function DirectoryClient({ initialMembers }: { initialMembers: Member[] }) {
+  // Client-side interactivity
+}
+```
+
+### Tailwind CSS Patterns
+- Use semantic class names and component-based styling
+- Implement custom design tokens for nostalgic aesthetics
+- Use responsive design patterns consistently
+- Implement dark mode support where appropriate
+
+```css
+/* tailwind.config.js custom theme */
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        cork: {
+          brown: '#8B4513',
+          light: '#D2B48C',
+          dark: '#654321',
+          texture: '#A0522D'
+        },
+        polaroid: {
+          white: '#F9F8F6',
+          cream: '#FDF6E3',
+          border: '#E8E6E3'
+        },
+        pin: {
+          cherry: '#DC143C',
+          mustard: '#FFDB58',
+          teal: '#008B8B',
+          lavender: '#E6E6FA'
+        }
+      },
+      fontFamily: {
+        handwritten: ['Kalam', 'cursive'],
+        display: ['Alfa Slab One', 'serif']
+      },
+      animation: {
+        'polaroid-hover': 'polaroid-hover 0.3s ease-out',
+        'pin-pulse': 'pin-pulse 0.6s ease-in-out infinite'
+      }
+    }
+  }
+}
+```
+
+### Framer Motion Patterns
+- Use consistent animation patterns across components
+- Implement accessibility-conscious animations with reduced motion support
+- Use physics-based animations for natural feel
+- Optimize animations for 60fps performance
+
+```typescript
+// Preferred animation patterns
+const polaroidVariants = {
+  initial: { opacity: 0, y: 20, rotate: 0 },
+  animate: { 
+    opacity: 1, 
+    y: 0, 
+    rotate: Math.random() * 4 - 2,
+    transition: { duration: 0.3, ease: 'easeOut' }
+  },
+  hover: { 
+    y: -8, 
+    scale: 1.02,
+    transition: { duration: 0.2, ease: 'easeOut' }
+  }
+};
+
+// Reduced motion support
+const prefersReducedMotion = useReducedMotion();
+const animationProps = prefersReducedMotion ? {} : { variants: polaroidVariants };
+```
+
+### Supabase Integration Patterns
+- Use proper TypeScript types generated from database schema
+- Implement Row Level Security (RLS) policies correctly
+- Use real-time subscriptions efficiently
+- Handle authentication state properly
+
+```typescript
+// Database types
+export interface Database {
+  public: {
+    Tables: {
+      members: {
+        Row: Member;
+        Insert: Omit<Member, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<Member, 'id' | 'created_at'>>;
+      };
+    };
+  };
+}
+
+// Supabase client configuration
+const supabase = createClientComponentClient<Database>();
+
+// Real-time subscription pattern
+useEffect(() => {
+  const subscription = supabase
+    .channel('members')
+    .on('postgres_changes', 
+      { event: '*', schema: 'public', table: 'members' },
+      handleMemberChange
+    )
+    .subscribe();
+
+  return () => subscription.unsubscribe();
+}, []);
+```
+
+## File Organization
+
+### Directory Structure
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── (auth)/            # Auth route group
+│   ├── directory/         # Main directory pages
+│   ├── member/            # Member profile pages
+│   ├── api/               # API routes
+│   ├── globals.css        # Global styles
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Home page
+├── components/            # Reusable components
+│   ├── ui/                # Basic UI components
+│   ├── polaroid/          # Polaroid-specific components
+│   ├── layout/            # Layout components
+│   └── forms/             # Form components
+├── lib/                   # Utility libraries
+│   ├── supabase/          # Supabase configuration
+│   ├── utils/             # General utilities
+│   ├── hooks/             # Custom React hooks
+│   └── types/             # TypeScript type definitions
+├── styles/                # Additional styles
+└── __tests__/             # Test files
+```
+
+### Component Organization
+- Group related components in feature-based directories
+- Use index.ts files for clean imports
+- Separate component logic, styles, and tests
+- Implement proper component documentation
+
+```typescript
+// components/polaroid/index.ts
+export { PolaroidCard } from './PolaroidCard';
+export { PolaroidGrid } from './PolaroidGrid';
+export { PinFilter } from './PinFilter';
+export type { PolaroidCardProps, PinColor } from './types';
+```
+
+## Performance Guidelines
+
+### Image Optimization
+- Use Next.js Image component for all member photos
+- Implement proper lazy loading and responsive images
+- Use WebP/AVIF formats with fallbacks
+- Implement image placeholder strategies
+
+```typescript
+// Preferred image implementation
+<Image
+  src={member.photo_url || '/placeholder-avatar.jpg'}
+  alt={`Photo of ${member.name}`}
+  fill
+  className="object-cover"
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+  priority={index < 6} // Prioritize above-the-fold images
+  placeholder="blur"
+  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
+/>
+```
+
+### Bundle Optimization
+- Use dynamic imports for heavy components
+- Implement proper code splitting
+- Optimize third-party library imports
+- Use tree shaking effectively
+
+```typescript
+// Dynamic imports for heavy components
+const PolaroidEditor = dynamic(() => import('./PolaroidEditor'), {
+  loading: () => <PolaroidSkeleton />,
+  ssr: false
+});
+
+// Optimized library imports
+import { motion } from 'framer-motion';
+import { debounce } from 'lodash-es';
+```
+
+### Database Optimization
+- Use proper indexing for search queries
+- Implement efficient pagination
+- Use database functions for complex operations
+- Cache frequently accessed data
+
+```sql
+-- Proper indexing for search
+CREATE INDEX idx_members_search_vector ON members USING gin(search_vector);
+CREATE INDEX idx_members_pin_color ON members(pin_color) WHERE public_visibility = true;
+
+-- Efficient pagination
+SELECT * FROM members 
+WHERE public_visibility = true 
+ORDER BY created_at DESC 
+LIMIT 20 OFFSET $1;
+```
+
+## Accessibility Requirements
+
+### WCAG 2.0 AA Compliance
+- Maintain minimum 4.5:1 color contrast ratios
+- Implement proper ARIA labels and roles
+- Ensure complete keyboard navigation
+- Provide alternative text for all images
+
+```typescript
+// Accessibility implementation example
+<motion.button
+  className="polaroid-card"
+  role="button"
+  tabIndex={0}
+  aria-label={`View ${member.name}'s profile`}
+  aria-describedby={`member-${member.id}-description`}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick?.();
+    }
+  }}
+>
+  {/* Card content */}
+  <div id={`member-${member.id}-description`} className="sr-only">
+    {member.role} at {member.company}
+  </div>
+</motion.button>
+```
+
+### Screen Reader Support
+- Use semantic HTML elements
+- Implement proper heading hierarchy
+- Provide live region updates for dynamic content
+- Test with actual screen readers
+
+```typescript
+// Live region for dynamic updates
+<div role="status" aria-live="polite" className="sr-only">
+  {searchResults.length} members found
+</div>
+```
+
+## Testing Requirements
+
+### Unit Testing
+- Test all component props and states
+- Test custom hooks thoroughly
+- Mock external dependencies properly
+- Achieve minimum 90% code coverage
+
+```typescript
+// Component testing example
+describe('PolaroidCard', () => {
+  const mockMember: Member = {
+    id: '1',
+    name: 'John Doe',
+    email: 'john@example.com',
+    pin_color: 'cherry',
+    public_visibility: true,
+    created_at: '2024-01-01',
+    updated_at: '2024-01-01'
+  };
+
+  it('renders member information correctly', () => {
+    render(<PolaroidCard member={mockMember} />);
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByRole('img')).toHaveAttribute('alt', 'Photo of John Doe');
+  });
+
+  it('handles click interactions', async () => {
+    const onClick = jest.fn();
+    render(<PolaroidCard member={mockMember} onClick={onClick} />);
+    
+    await userEvent.click(screen.getByRole('button'));
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+### Integration Testing
+- Test API endpoints with real database
+- Test authentication flows completely
+- Test real-time subscriptions
+- Test file upload functionality
+
+```typescript
+// API testing example
+describe('/api/members', () => {
+  it('returns paginated members list', async () => {
+    const response = await request(app)
+      .get('/api/members?limit=10&offset=0')
+      .expect(200);
+
+    expect(response.body).toHaveProperty('members');
+    expect(response.body).toHaveProperty('total');
+    expect(response.body.members).toHaveLength(10);
+  });
+});
+```
+
+### End-to-End Testing
+- Test complete user workflows
+- Test across different browsers and devices
+- Test performance under load
+- Test accessibility with assistive technologies
+
+```typescript
+// E2E testing example
+test('user can search and filter members', async ({ page }) => {
+  await page.goto('/directory');
+  
+  // Search for members
+  await page.fill('[data-testid="search-input"]', 'engineer');
+  await page.waitForSelector('[data-testid="member-card"]');
+  
+  // Apply pin filter
+  await page.click('[data-testid="pin-cherry"]');
+  await page.waitForSelector('[data-testid="filtered-results"]');
+  
+  // Verify results
+  const memberCards = await page.locator('[data-testid="member-card"]').count();
+  expect(memberCards).toBeGreaterThan(0);
+});
+```
+
+## Security Guidelines
+
+### Authentication Security
+- Implement proper session management
+- Use secure password policies
+- Implement rate limiting for auth endpoints
+- Handle authentication errors securely
+
+```typescript
+// Secure authentication implementation
+export async function signIn(email: string, password: string): Promise<Result<User>> {
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      // Log security events without exposing details
+      console.error('Authentication failed:', { email, timestamp: new Date() });
+      return { success: false, error: new Error('Invalid credentials') };
+    }
+
+    return { success: true, data: data.user };
+  } catch (error) {
+    return { success: false, error: error as Error };
+  }
+}
+```
+
+### Data Protection
+- Implement proper input validation
+- Sanitize user-generated content
+- Use parameterized queries
+- Implement proper file upload validation
+
+```typescript
+// Input validation example
+const memberSchema = z.object({
+  name: z.string().min(1).max(100),
+  email: z.string().email(),
+  role: z.string().max(100).optional(),
+  company: z.string().max(100).optional(),
+  bio: z.string().max(500).optional(),
+  pin_color: z.enum(['cherry', 'mustard', 'teal', 'lavender'])
+});
+
+export function validateMemberData(data: unknown): Result<Member> {
+  try {
+    const validated = memberSchema.parse(data);
+    return { success: true, data: validated };
+  } catch (error) {
+    return { success: false, error: error as Error };
+  }
+}
+```
+
+## Error Handling
+
+### Client-Side Error Handling
+- Implement proper error boundaries
+- Handle async errors gracefully
+- Provide meaningful error messages
+- Log errors for debugging
+
+```typescript
+// Error boundary implementation
+class PolaroidErrorBoundary extends Component<
+  { children: ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(): { hasError: boolean } {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Polaroid component error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="polaroid-card bg-red-50 border-red-200">
+          <p className="text-red-600">Something went wrong with this member card.</p>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+### Server-Side Error Handling
+- Implement proper API error responses
+- Log errors with appropriate detail
+- Handle database errors gracefully
+- Implement proper error monitoring
+
+```typescript
+// API error handling
+export async function GET(request: Request) {
+  try {
+    const members = await getMembers();
+    return NextResponse.json({ members });
+  } catch (error) {
+    console.error('Failed to fetch members:', error);
+    
+    return NextResponse.json(
+      { error: 'Failed to fetch members' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+## Development Workflow
+
+### Git Workflow
+- Use conventional commit messages
+- Create feature branches for all changes
+- Require code review for all PRs
+- Use semantic versioning for releases
+
+```bash
+# Conventional commit examples
+git commit -m "feat(polaroid): add hover animation to member cards"
+git commit -m "fix(search): resolve search input debouncing issue"
+git commit -m "docs(readme): update installation instructions"
+```
+
+### Code Review Guidelines
+- Review for code quality and consistency
+- Verify accessibility compliance
+- Check performance implications
+- Ensure proper testing coverage
+
+### Deployment Process
+- Use staging environment for testing
+- Run full test suite before deployment
+- Monitor performance after deployment
+- Have rollback plan ready
+
+## Documentation Requirements
+
+### Code Documentation
+- Document all public APIs
+- Include usage examples
+- Document complex algorithms
+- Maintain up-to-date README
+
+```typescript
+/**
+ * PolaroidCard component displays a member's information in a nostalgic polaroid style.
+ * 
+ * @param member - The member data to display
+ * @param size - The size variant of the card ('sm' | 'md' | 'lg')
+ * @param rotation - Optional rotation angle in degrees
+ * @param interactive - Whether the card should respond to interactions
+ * @param onClick - Callback function when card is clicked
+ * 
+ * @example
+ * ```tsx
+ * <PolaroidCard
+ *   member={memberData}
+ *   size="md"
+ *   interactive={true}
+ *   onClick={() => router.push(`/member/${member.id}`)}
+ * />
+ * ```
+ */
+```
+
+### User Documentation
+- Provide clear setup instructions
+- Document all features and functionality
+- Include troubleshooting guides
+- Maintain changelog
+
+## Monitoring and Analytics
+
+### Performance Monitoring
+- Monitor Core Web Vitals
+- Track custom performance metrics
+- Monitor error rates
+- Track user engagement
+
+```typescript
+// Performance monitoring implementation
+export function trackPerformanceMetric(name: string, value: number) {
+  // Send to analytics service
+  analytics.track('performance_metric', {
+    metric_name: name,
+    value: value,
+    timestamp: Date.now(),
+    url: window.location.href
+  });
+}
+
+// Core Web Vitals tracking
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
+
+getCLS(trackPerformanceMetric);
+getFID(trackPerformanceMetric);
+getFCP(trackPerformanceMetric);
+getLCP(trackPerformanceMetric);
+getTTFB(trackPerformanceMetric);
+```
+
+### User Analytics
+- Track user interactions
+- Monitor feature usage
+- Track conversion funnels
+- Respect user privacy
+
+```typescript
+// Privacy-conscious analytics
+export function trackUserAction(action: string, properties?: Record<string, any>) {
+  // Only track if user has consented
+  if (hasAnalyticsConsent()) {
+    analytics.track(action, {
+      ...properties,
+      timestamp: Date.now(),
+      session_id: getSessionId()
+    });
+  }
+}
+```
+
+## Environment Configuration
+
+### Development Environment
+```bash
+# Required environment variables
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### Production Environment
+```bash
+# Production environment variables
+NEXT_PUBLIC_SUPABASE_URL=your_production_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_production_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_production_service_key
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+NEXT_PUBLIC_ANALYTICS_ID=your_analytics_id
+```
+
+## Common Patterns and Anti-Patterns
+
+### ✅ Do This
+- Use semantic HTML elements
+- Implement proper loading states
+- Handle errors gracefully
+- Write comprehensive tests
+- Use TypeScript strictly
+- Optimize for performance
+- Follow accessibility guidelines
+
+### ❌ Avoid This
+- Using any types in TypeScript
+- Ignoring error states
+- Skipping accessibility testing
+- Using inline styles instead of Tailwind
+- Forgetting to handle loading states
+- Not implementing proper error boundaries
+- Ignoring performance implications
+
+## Quick Reference
+
+### Essential Commands
+```bash
+# Development
+npm run dev              # Start development server
+npm run build           # Build for production
+npm run test            # Run test suite
+npm run test:e2e        # Run E2E tests
+npm run lint            # Run linting
+npm run type-check      # Run TypeScript checking
+
+# Database
+npx supabase start      # Start local Supabase
+npx supabase db reset   # Reset local database
+npx supabase gen types  # Generate TypeScript types
+```
+
+### Key File Locations
+- Cursor rules: `.cursorrules`
+- TypeScript config: `tsconfig.json`
+- Tailwind config: `tailwind.config.js`
+- Next.js config: `next.config.js`
+- Supabase config: `lib/supabase/`
+- Component library: `components/`
+- Test files: `__tests__/`
+
+Remember: The Digital Polaroid Pinboard is about creating emotional connections through nostalgic design while maintaining modern technical excellence. Every code decision should support this vision while ensuring accessibility, performance, and maintainability.
+
